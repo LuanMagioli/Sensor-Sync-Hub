@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  service:
+    build: ./
+    ports:
+      - 8000:8000
+    depends_on:
+      - postgres
+      - mosquitto
+  postgres:
+    image: postgres
+    container_name: postgres
+    restart: always
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - ${DB_PORT}:5432
+  mosquitto:
+    image: eclipse-mosquitto:latest
+    container_name: mosquitto
+    volumes:
+      - ./mosquitto/config:/mosquitto/config
+    ports:
+      - 1883:1883
+      - 9001:9001

@@ -1,0 +1,72 @@
+syntax = "proto3";
+
+package sensor_sync_hub;
+import "google/protobuf/timestamp.proto";
+
+service Service {
+  rpc GetDevice(GetDeviceRequest) returns (Device) {}
+  rpc GetDevices(Empty) returns (Devices) {}
+  rpc GetSensors(Empty) returns (Sensors) {}
+
+  rpc GetDeviceData(GetDeviceDataRequest) returns (DataList) {}
+  rpc GetSensorData(GetSensorDataRequest) returns (DataList) {}
+
+  rpc StreamDeviceData(GetDeviceDataRequest) returns (stream Data) {}
+  rpc StreamSensorData(GetSensorDataRequest) returns (stream Data) {}
+
+  rpc DeleteDevice(DeleteRequest) returns (Empty) {}
+  rpc DeleteData(DeleteRequest) returns (Empty) {}
+  rpc DeleteSensor(DeleteRequest) returns (Empty) {}
+}
+
+message GetDeviceRequest {
+  string device_id = 1; // ID of the device
+}
+
+message GetDeviceDataRequest {
+  string device_id = 1; // ID of the device
+}
+
+message GetSensorDataRequest {
+  string sensor_id = 1; // ID of the sensor
+}
+
+message DeleteRequest {
+  string id = 1; // ID of the device, sensor or data
+}
+
+message Devices {
+  repeated Device devices = 1; // List of devices
+}
+
+message Sensors {
+  repeated Sensor sensors = 1; // List of sensors
+}
+
+message DataList {
+  repeated Data data = 1; // List of data
+}
+
+//////////////////////////////
+
+message Sensor {
+  string sensor_id = 1; // ID of the sensor
+  string name = 2; // Name of the sensor (ex. "Temperature")
+  string unit = 3; // Unit of the sensor (ex. "Celsius")
+}
+
+message Device {
+  string device_id = 1; // ID of the device
+  google.protobuf.Timestamp registration_time = 2; // Timestamp of the device registration
+  bool is_active = 3; // Whether the device is active or not
+  repeated Sensor sensors = 4; // List of sensors registered to the device
+}
+
+message Data {
+  string device_id = 1; // ID of the device
+  string sensor_id = 2; // ID of the sensor
+  float value = 3; // Value of the data (ex. 25.0)
+  google.protobuf.Timestamp timestamp = 4; // Timestamp of the data (ex. 2020-01-01T00:00:00Z)
+}
+
+message Empty {}

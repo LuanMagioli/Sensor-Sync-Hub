@@ -1,0 +1,8 @@
+version: '3.8'
+services:
+  service:
+    volumes:
+      - ..:/workspaces:cached
+
+    command: /bin/sh -c "while sleep 1000; do :; done"
+ 
