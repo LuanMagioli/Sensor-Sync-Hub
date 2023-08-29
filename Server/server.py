@@ -7,20 +7,21 @@ import proto.server_pb2_grpc as server_pb2_grpc
 
 from mqtt import MQTTConnection
 
+import random
+import string
+
 class Service(server_pb2_grpc.SensorSyncHub):
 
     def __init__(self):
         self.mqtt_connection = MQTTConnection(topic="test/test", broker="mosquitto", port=1883, on_message=self.handle_mqtt_message)
 
     def handle_mqtt_message(self, message):
+        print(message)
+
         # Here you can process the received MQTT message and send it to the client
         # Parse the message as needed and create a gRPC response
         # Example: Assuming the message is JSON
-        response = server_pb2.DeviceDataResponse(data=message)
-        self.stream_response(response)
-
-
-    # Implement the RPC methods here
+        response = server_pb2.Data(value=2)
 
     def GetDevice(self, request, context):
         pass
@@ -38,14 +39,23 @@ class Service(server_pb2_grpc.SensorSyncHub):
         pass
 
     def StreamDeviceData(self, request, context):
-        # Start streaming the data to the gRPC client
-        self.stream_response = context.response_stream.send_message
-        # Subscribe to the MQTT topic to receive data
-        self.mqtt_connection.subscribe()
+        characters = string.ascii_letters + string.digits    
+        client_id = ''.join(random.choice(characters) for _ in range(10))
 
-        # This function will be continuously running and streaming data to the client
-        while not context.is_active():
+        device_connection = MQTTConnection(topic="test/test", 
+                                           broker="mosquitto", 
+                                           port=1883, 
+                                           on_message=self.handle_device_message,
+                                           client_id=client_id)
+
+        while context._state.client != 'cancelled' :
             pass  # You can add any additional logic here if needed
+        device_connection.client.disconnect()
+
+    def handle_device_message(self, message):
+        print("New message: " + message)
+        response = server_pb2.Data(value=0.6)
+        yield response  
 
     def StreamSensorData(self, request, context):
         pass

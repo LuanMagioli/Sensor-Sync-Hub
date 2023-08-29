@@ -27,7 +27,7 @@ class MQTTConnection():
 
         if(on_message != None):
             def on_msg(client, userdata, message):
-                    on_message(str(message.payload.decode("utf-8")))
+                    on_message(message = str(message.payload.decode("utf-8")))
             self.client.on_message = on_msg
 
         
